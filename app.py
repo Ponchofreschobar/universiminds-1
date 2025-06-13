@@ -16,10 +16,8 @@ TO_NUMBER = os.getenv("TO_NUMBER")
 # OpenAI API Key
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
-# Initialize Flask
+# Initialize Flask app
 app = Flask(__name__)
-
-# Initialize Twilio Client
 client = Client(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
 
 @app.route('/')
@@ -49,7 +47,6 @@ def check_in():
 
     return f"✅ SMS Sent: {gpt_message}"
 
-# Required to run on Render
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
