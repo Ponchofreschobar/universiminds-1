@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 from twilio.rest import Client
 import openai
 
-# Load .env variables
+# Load environment variables
 load_dotenv()
 
 # Twilio credentials
@@ -49,5 +49,7 @@ def check_in():
 
     return f"✅ SMS Sent: {gpt_message}"
 
+# Required to run on Render
 if __name__ == '__main__':
-    port = int(os.envir
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port)
