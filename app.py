@@ -1,45 +1,53 @@
+import os
 from flask import Flask, request
+from dotenv import load_dotenv
 from twilio.rest import Client
 import openai
-import os
-from db import log_action
-from datetime import datetime
 
+# Load .env variables
+load_dotenv()
+
+# Twilio credentials
+TWILIO_ACCOUNT_SID = os.getenv("TWILIO_ACCOUNT_SID")
+TWILIO_AUTH_TOKEN = os.getenv("TWILIO_AUTH_TOKEN")
+TWILIO_FROM_NUMBER = os.getenv("TWILIO_FROM_NUMBER")
+TO_NUMBER = os.getenv("TO_NUMBER")
+
+# OpenAI API Key
+openai.api_key = os.getenv("OPENAI_API_KEY")
+
+# Initialize Flask
 app = Flask(__name__)
 
-# Set environment vars
-openai.api_key = os.getenv("OPENAI_API_KEY")
-twilio_sid = os.getenv("TWILIO_ACCOUNT_SID")
-twilio_auth = os.getenv("TWILIO_AUTH_TOKEN")
-twilio_number = os.getenv("TWILIO_PHONE_NUMBER")
-user_number = os.getenv("USER_PHONE_NUMBER")
+# Initialize Twilio Client
+client = Client(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
 
-client = Client(twilio_sid, twilio_auth)
-
-@app.route("/", methods=["GET"])
+@app.route('/')
 def home():
-    return "UniversiMinds Agent is running."
+    return "✅ BeastMind AI Agent is Live."
 
-@app.route("/check-in", methods=["GET"])
-def send_checkin():
-    today = datetime.now().strftime("%A, %B %d")
-    prompt = f"Create a 2-line motivational check-in for someone pushing through mental fatigue. Focus: Discipline, Momentum. Date: {today}"
-    
-    try:
-        response = openai.ChatCompletion.create(
-            model="gpt-4",
-            messages=[{"role": "user", "content": prompt}]
-        )
-        ai_message = response.choices[0].message.content.strip()
+@app.route('/check-in', methods=["GET"])
+def check_in():
+    # Create message with GPT
+    response = openai.ChatCompletion.create(
+        model="gpt-4",
+        messages=[
+            {"role": "system", "content": "You are a strict accountability coach that texts daily discipline reminders."},
+            {"role": "user", "content": "Send me a powerful daily check-in to stay focused, no excuses."}
+        ],
+        max_tokens=100
+    )
 
-        client.messages.create(
-            body=f"UniversiMinds Check-In:\n{ai_message}",
-            from_=twilio_number,
-            to=user_number
-        )
+    gpt_message = response["choices"][0]["message"]["content"]
 
-        log_action("check-in", ai_message)
-        return "Check-in sent successfully."
+    # Send SMS via Twilio
+    message = client.messages.create(
+        body=gpt_message,
+        from_=TWILIO_FROM_NUMBER,
+        to=TO_NUMBER
+    )
 
-    except Exception as e:
-        return f"Error: {str(e)}"
+    return f"✅ SMS Sent: {gpt_message}"
+
+if __name__ == '__main__':
+    port = int(os.envir
