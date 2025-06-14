@@ -1,4 +1,7 @@
 flask
+python-dotenv
 twilio
 openai
-python-dotenv
+flask-socketio
+apscheduler
+eventlet
