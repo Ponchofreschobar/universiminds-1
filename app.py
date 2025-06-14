@@ -1,4 +1,10 @@
 import os
+# After all imports
+from googleapiclient.discovery import build
+from google_auth_oauthlib.flow import InstalledAppFlow
+
+# Then define your fetch_google_calendar_events() here
+
 from flask import Flask, request, jsonify
 from flask_socketio import SocketIO, emit
 from dotenv import load_dotenv
@@ -6,6 +12,8 @@ from openai import OpenAI
 from twilio.rest import Client
 from apscheduler.schedulers.background import BackgroundScheduler
 
+# Top
+def send_weekly_summary():
 # Load secrets
 load_dotenv()
 
@@ -35,7 +43,8 @@ def send_daily_checkin():
 scheduler = BackgroundScheduler()
 scheduler.add_job(send_daily_checkin, 'cron', hour=8)
 scheduler.start()
-
+# Bottom (with scheduler):
+scheduler.add_job(send_weekly_summary, 'cron', day_of_week='sun', hour=20)
 # 🌐 Routes
 @app.route('/')
 def home():
@@ -45,6 +54,20 @@ def home():
 def manual_checkin():
     send_daily_checkin()
     return jsonify({"status": "✅ SMS Sent"})
+
+@app.route('/mood', methods=['GET', 'POST'])
+def mood():
+    if request.method == 'POST':
+        mood = request.form['mood']
+        # Save to file or database
+        with open('mood_log.txt', 'a') as f:
+            f.write(f"{datetime.now()}: {mood}\n")
+        return "Mood logged!"
+    return '''
+        <form method="post">
+            How are you feeling? <input name="mood" type="text">
+            <input type="submit">
+        </form>
 
 # 💬 Real-time chat
 @socketio.on('user_message')
