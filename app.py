@@ -15,14 +15,14 @@ app = Flask(__name__)
 socketio = SocketIO(app, cors_allowed_origins="*")
 
 # Initialize APIs
-openai = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+openai = OpenAI(api_key=os.getenv("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"))
 twilio_client = Client(
-    os.getenv("TWILIO_ACCOUNT_SID"),
-    os.getenv("TWILIO_AUTH_TOKEN")
+    os.getenv("ACb7c1750d3cce41aa248d38c2786e500b"),
+    os.getenv("15a19cdfb95b00b3e82571aeebf4ae85")
 )
 
-TO_NUMBER = os.getenv("TO_NUMBER")
-FROM_NUMBER = os.getenv("TWILIO_FROM_NUMBER")
+TO_NUMBER = os.getenv("+19787905454")
+FROM_NUMBER = os.getenv("+18884657356")
 
 # 🔁 Daily reminder function
 def send_daily_checkin():
